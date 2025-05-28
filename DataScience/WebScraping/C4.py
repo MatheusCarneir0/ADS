@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -16,14 +17,18 @@ def get_total_pages(base_url):
 
 def scrape_books(base_url):
     total_pages = get_total_pages(base_url)
+    print(f"Total de páginas: {total_pages}")
     all_books = []
 
     for page in range(1, total_pages + 1):
         url = f"{base_url}/catalogue/page-{page}.html"
+        print(f"Buscando página {page}: {url}")
         response = requests.get(url)
         response.encoding = "utf-8"
         if response.status_code != 200:
+            print(f"Falha ao acessar a página {page}")
             break
+
         soup = BeautifulSoup(response.text, "html.parser")
         books = soup.find_all("article", class_="product_pod")
 
@@ -34,25 +39,32 @@ def scrape_books(base_url):
 
             # Link para a página do livro
             book_url = urljoin(url, book.h3.a["href"])
-            # Acessa a página do livro para pegar a categoria
             book_resp = requests.get(book_url)
             book_resp.encoding = "utf-8"
-            book_soup = BeautifulSoup(book_resp.text, "html.parser")
-
-            # A categoria está no caminho de navegação (breadcrumb)
-            category = book_soup.find("ul", class_="breadcrumb").find_all("li")[2].text.strip()
+            if book_resp.status_code != 200:
+                category = "N/A"
+            else:
+                book_soup = BeautifulSoup(book_resp.text, "html.parser")
+                breadcrumb = book_soup.find("ul", class_="breadcrumb")
+                if breadcrumb:
+                    category = breadcrumb.find_all("li")[2].text.strip()
+                else:
+                    category = "N/A"
 
             all_books.append([title, price, rating, category])
 
     return all_books
 
-# Executar o scraper
-base_url = "https://books.toscrape.com"
-books_data = scrape_books(base_url)
+if __name__ == "__main__":
+    base_url = "https://books.toscrape.com"
+    books_data = scrape_books(base_url)
 
-# Criar o DataFrame
-df = pd.DataFrame(books_data, columns=["Título", "Preço", "Classificação", "Categoria"])
+    df = pd.DataFrame(books_data, columns=["Título", "Preço", "Classificação", "Categoria"])
+    print(f"Total de livros coletados: {len(df)}")
 
-# Salvar em CSV
-df.to_csv("books_detalhado.csv", index=False, encoding="utf-8")
-print("Todos os dados foram extraídos e salvos com sucesso!")
+    # Caminho completo para salvar o CSV no diretório atual
+    file_path = os.path.join(os.getcwd(), "books_detalhado.csv")
+    df.to_csv(file_path, index=False, encoding="utf-8")
+
+    print(f"Arquivo salvo em: {file_path}")
+    print("Todos os dados foram extraídos e salvos com sucesso!")
