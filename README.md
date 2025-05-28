@@ -1,10 +1,3 @@
-Claro, Matheus! Abaixo está o conteúdo do arquivo `README.md` para o seu repositório de trabalhos acadêmicos do curso de Análise e Desenvolvimento de Sistemas (ADS) no IFCE Campus Boa Viagem.
-
----
-
-
-
-```markdown
 # 🎓 Repositório de Trabalhos Acadêmicos - ADS | IFCE - Campus Boa Viagem
 
 Bem-vindo ao repositório de trabalhos acadêmicos de **Matheus Cavalcante Carneiro**, estudante do curso de **Análise e Desenvolvimento de Sistemas (ADS)** no **Instituto Federal de Educação, Ciência e Tecnologia do Ceará (IFCE)**, Campus Boa Viagem.
